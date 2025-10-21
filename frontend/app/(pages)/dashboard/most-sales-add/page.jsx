@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { mostSalesAPI } from "../../../Apis/mostsale";
+import { mostSalesAPI } from "../../../apis/mostsale";
 
 export default function AddMostSalesPage() {
   const [image, setImage] = useState(null);

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { authAPI } from "../../Apis/auth";
+import { authAPI } from "../../apis/auth";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";

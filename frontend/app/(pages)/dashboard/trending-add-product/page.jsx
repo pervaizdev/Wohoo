@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { trendingAPI } from "../../../Apis/trending";
+import { trendingAPI } from "../../../apis/trending";
 
 export default function AddTrendingPage() {
   const [image, setImage] = useState(null);

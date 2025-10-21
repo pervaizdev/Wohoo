@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { productAPI } from "../../../Apis/product"; // ensure this path is correct
+import { productAPI } from "../../../apis/product"; // ensure this path is correct
 
 export default function NewProductPage() {
   const [image, setImage] = useState(null);
