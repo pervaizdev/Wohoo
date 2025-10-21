@@ -38,13 +38,14 @@ export const getAllUsers = async (req, res) => {
 
     return res.json({
       success: true,
+         users,
         page,
         pageSize,
         total,
         totalPages,
         hasPrev: page > 1,
         hasNext: page < totalPages,
-      users
+   
       
     });
   } catch (err) {

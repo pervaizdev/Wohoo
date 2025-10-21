@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const trendingSchema = new mongoose.Schema(
+const mostSalesSchema = new mongoose.Schema(
   {
     imageUrl: { type: String, required: true },
     imageName: { type: String, required: true },
@@ -13,4 +13,4 @@ const trendingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Trending", trendingSchema);
+export default mongoose.model("MostSales", mostSalesSchema);

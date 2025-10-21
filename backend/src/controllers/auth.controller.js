@@ -22,7 +22,7 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Your email is not registered yet",
       });
     }
 
@@ -107,7 +107,7 @@ const sendVerificationEmail = async (user, req, res) => {
 
   // If your frontend handles the route, keep CLIENT_URL.
   // If the backend verifies directly, prefer SERVER_URL hitting this API.
-  const verifyURL = `${process.env.SERVER_URL}/api/auth/verify-email?token=${token}`;
+  const verifyURL = `https://wohoo-api-1e8a38739a3b.herokuapp.com/api/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Auth System" <${process.env.SMTP_USER}>`,
@@ -181,7 +181,7 @@ export const forgotPassword = async (req, res) => {
       expiresIn: "15m",
     });
 
-    const resetURL = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+    const resetURL = `${process.env.SERVER_URL}/reset-password?token=${token}`;
 
     const mailOptions = {
       from: `"Auth System" <${process.env.SMTP_USER}>`,

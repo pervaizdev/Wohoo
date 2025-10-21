@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema(
+const FeatureSchema = new mongoose.Schema(
   {
     sub: { type: String, default: "" }, // e.g., sub-category or subtitle
     title: { type: String, required: true, trim: true },
@@ -9,9 +9,9 @@ const productSchema = new mongoose.Schema(
     imageUrl: { type: String, required: true },
     imageName: { type: String, required: true }, // stored filename on disk
     description: { type: String, required: true },
- slug: { type: String, required: true, unique: true, index: true }, // 🔹 added
+  slug: { type: String, required: true, unique: true, index: true }, // 🔹 added
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Product", productSchema);
+export default mongoose.model("Feature", FeatureSchema);

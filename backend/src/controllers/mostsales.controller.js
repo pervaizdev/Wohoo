@@ -1,11 +1,13 @@
-// controllers/trending.controller.js
+// controllers/mostSales.controller.js
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import Trending from "../models/trending.js";
-import { publicUrl } from "../utils/publicUrl.js";
-import { uniqueSlug, escapeRegex } from "../utils/slugs.js"; // keep this
 
+import MostSales from "../models/mostsales.js"; // your model file
+import { publicUrl } from "../utils/publicUrl.js";
+import { uniqueSlug, escapeRegex } from "../utils/slugs.js"; // keep using same helpers
+
+// resolve /src/uploads (adjust if uploads live elsewhere)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsRoot = path.join(__dirname, "..", "uploads");
@@ -14,12 +16,16 @@ function removeFileSafe(filename) {
   if (!filename) return;
   const full = path.join(uploadsRoot, filename);
   fs.access(full, fs.constants.F_OK, (err) => {
-    if (err) return;
+    if (err) return; // not found
     fs.unlink(full, () => {});
   });
 }
 
-export const createTrending = async (req, res) => {
+/**
+ * POST /api/most-sales
+ * body: { heading, subheading, btnText }, file: image
+ */
+export const createMostSales = async (req, res) => {
   try {
     const { heading = "", subheading = "", btnText = "" } = req.body ?? {};
 
@@ -27,13 +33,24 @@ export const createTrending = async (req, res) => {
       return res.status(400).json({ success: false, message: "Image is required" });
     }
     if (!heading.trim() || !subheading.trim() || !btnText.trim()) {
+      // clean up uploaded file if text invalid
+      removeFileSafe(req.file.filename);
       return res.status(400).json({ success: false, message: "All text fields are required" });
     }
 
-    const fileUrl = publicUrl(req, req.file.filename);
-    const slug = await uniqueSlug(Trending, heading.trim());
+    // Check duplicate heading (case-insensitive)
+    const exists = await MostSales.exists({
+      heading: { $regex: `^${escapeRegex(heading.trim())}$`, $options: "i" },
+    });
+    if (exists) {
+      removeFileSafe(req.file.filename);
+      return res.status(409).json({ success: false, message: "Heading already exists" });
+    }
 
-    const doc = await Trending.create({
+    const fileUrl = publicUrl(req, req.file.filename);
+    const slug = await uniqueSlug(MostSales, heading.trim());
+
+    const doc = await MostSales.create({
       imageUrl: fileUrl,
       imageName: req.file.filename,
       heading: heading.trim(),
@@ -42,9 +59,11 @@ export const createTrending = async (req, res) => {
       slug,
     });
 
-    return res.status(201).json({ success: true, message: "Trending item added", data: doc });
+    return res.status(201).json({ success: true, message: "Most Sales item added", data: doc });
   } catch (err) {
     console.error(err);
+    if (req?.file?.filename) removeFileSafe(req.file.filename);
+
     if (err?.code === 11000) {
       const field = Object.keys(err.keyPattern || {})[0] || "field";
       return res.status(409).json({ success: false, message: `Duplicate ${field}` });
@@ -53,9 +72,12 @@ export const createTrending = async (req, res) => {
   }
 };
 
-export const getAllTrending = async (_req, res) => {
+/**
+ * GET /api/most-sales
+ */
+export const getAllMostSales = async (_req, res) => {
   try {
-    const items = await Trending.find().sort({ createdAt: -1 });
+    const items = await MostSales.find().sort({ createdAt: -1 });
     return res.json({ success: true, data: items });
   } catch (err) {
     console.error(err);
@@ -63,11 +85,15 @@ export const getAllTrending = async (_req, res) => {
   }
 };
 
-// NEW: slug-based getter (case-insensitive just in case)
-export const getTrendingBySlug = async (req, res) => {
+/**
+ * GET /api/most-sales/:slug
+ */
+export const getMostSalesBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const doc = await Trending.findOne({ slug: { $regex: `^${escapeRegex(slug)}$`, $options: "i" } });
+    const doc = await MostSales.findOne({
+      slug: { $regex: `^${escapeRegex(slug)}$`, $options: "i" },
+    });
     if (!doc) return res.status(404).json({ success: false, message: "Not found" });
     return res.json({ success: true, data: doc });
   } catch (err) {
@@ -76,46 +102,61 @@ export const getTrendingBySlug = async (req, res) => {
   }
 };
 
-// already slug-based in your code (kept as-is, tiny tidy ups)
-export const updateTrendingBySlug = async (req, res) => {
+/**
+ * PUT /api/most-sales/:slug
+ * body: { heading?, subheading?, btnText? }, file?: image
+ */
+export const updateMostSalesBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const doc = await Trending.findOne({ slug: { $regex: `^${escapeRegex(slug)}$`, $options: "i" } });
-    if (!doc) return res.status(404).json({ success: false, message: "Not found" });
+    const doc = await MostSales.findOne({
+      slug: { $regex: `^${escapeRegex(slug)}$`, $options: "i" },
+    });
+    if (!doc) {
+      if (req?.file?.filename) removeFileSafe(req.file.filename);
+      return res.status(404).json({ success: false, message: "Not found" });
+    }
 
     const { heading, subheading, btnText } = req.body ?? {};
 
     if (typeof heading === "string" && heading.trim()) {
       const trimmed = heading.trim();
-      const exists = await Trending.exists({
+      // duplicate heading check (excluding self)
+      const exists = await MostSales.exists({
         _id: { $ne: doc._id },
         heading: { $regex: `^${escapeRegex(trimmed)}$`, $options: "i" },
       });
       if (exists) {
+        if (req?.file?.filename) removeFileSafe(req.file.filename);
         return res.status(409).json({ success: false, message: "Heading already exists" });
       }
       doc.heading = trimmed;
-      doc.slug = await uniqueSlug(Trending, trimmed, String(doc._id));
+      // regenerate slug keeping same _id as salt for uniqueness helper if you support it
+      doc.slug = await uniqueSlug(MostSales, trimmed, String(doc._id));
     }
 
     if (typeof subheading === "string" && subheading.trim()) {
       doc.subheading = subheading.trim();
     }
+
     if (typeof btnText === "string" && btnText.trim()) {
       doc.btnText = btnText.trim();
     }
 
     if (req.file) {
+      // replace image
       removeFileSafe(doc.imageName);
       doc.imageName = req.file.filename;
       doc.imageUrl = publicUrl(req, req.file.filename);
     }
 
     await doc.save();
-    return res.json({ success: true, message: "Trending item updated", data: doc });
+    return res.json({ success: true, message: "Most Sales item updated", data: doc });
   } catch (err) {
     console.error(err);
+    if (req?.file?.filename) removeFileSafe(req.file.filename);
+
     if (err?.code === 11000) {
       const field = Object.keys(err.keyPattern || {})[0] || "field";
       return res.status(409).json({ success: false, message: `Duplicate ${field}` });
@@ -124,17 +165,19 @@ export const updateTrendingBySlug = async (req, res) => {
   }
 };
 
-// NEW: slug-based delete
-export const deleteTrendingBySlug = async (req, res) => {
+/**
+ * DELETE /api/most-sales/:slug
+ */
+export const deleteMostSalesBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const doc = await Trending.findOneAndDelete({
+    const doc = await MostSales.findOneAndDelete({
       slug: { $regex: `^${escapeRegex(slug)}$`, $options: "i" },
     });
     if (!doc) return res.status(404).json({ success: false, message: "Not found" });
 
     removeFileSafe(doc.imageName);
-    return res.json({ success: true, message: "Trending item deleted" });
+    return res.json({ success: true, message: "Most Sales item deleted" });
   } catch (err) {
     console.error(err);
     return res.status(400).json({ success: false, message: "Failed to delete item" });
