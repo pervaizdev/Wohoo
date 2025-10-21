@@ -1,0 +1,126 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { FaShoppingCart } from "react-icons/fa";
+import { productAPI } from "../../../apis/product"; // adjust path if needed
+
+export default function ProductDetailPage() {
+  const params = useParams();
+  const slugRaw = params?.slug;
+  const slug = Array.isArray(slugRaw) ? slugRaw[0] : slugRaw;
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await productAPI.detail(encodeURIComponent(slug)); // GET /products/:slug
+        const item = res?.data?.data || res?.data || res; // tolerate different shapes
+        setProduct(item);
+      } catch (e) {
+        setError(e?.message || "Failed to load product");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [slug]);
+
+  if (!slug) return <div className="max-w-6xl mx-auto px-6 py-10">Resolving product…</div>;
+  if (loading) return <div className="max-w-6xl mx-auto px-6 py-10">Loading…</div>;
+  if (error) return <div className="max-w-6xl mx-auto px-6 py-10 text-red-600">{error}</div>;
+  if (!product) return <div className="max-w-6xl mx-auto px-6 py-10">Product not found</div>;
+
+  const { title, price, description, sizes = [], imageUrl, sub } = product;
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      {/* Product Top Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="flex justify-center items-center bg-gray-100 rounded-2xl p-6">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title || "Product"}
+              width={700}
+              height={700}
+              className="object-contain hover:scale-105 transition-transform duration-500 ease-in-out"
+              priority
+            />
+          ) : (
+            <div className="h-[420px] w-full grid place-items-center text-gray-500">
+              No image
+            </div>
+          )}
+        </div>
+
+        <div>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
+
+          <p className="text-[#3199d9] text-3xl font-bold mb-4">
+            {typeof price === "number" ? `Rs ${price.toLocaleString()}` : "—"}
+          </p>
+
+          <p className="text-gray-700 text-sm leading-relaxed mb-6">{description}</p>
+
+          {/* Size Selector */}
+          {sizes.length > 0 && (
+            <div className="mb-5">
+              <h3 className="font-semibold mb-2">Select Size:</h3>
+              <div className="flex flex-wrap gap-3">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    className="border border-gray-300 rounded-md px-4 py-1 text-sm hover:bg-[#3199d9] hover:text-white transition"
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quantity */}
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2">Quantity:</h3>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="px-3 py-1 bg-gray-200 text-lg rounded hover:bg-gray-300"
+              >
+                –
+              </button>
+              <span className="font-semibold">{quantity}</span>
+              <button
+                onClick={() => setQuantity((q) => q + 1)}
+                className="px-3 py-1 bg-gray-200 text-lg rounded hover:bg-gray-300"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <button className="flex items-center gap-2 bg-[#3199d9] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-[#2784bf] transition">
+            <FaShoppingCart /> Add to Cart
+          </button>
+        </div>
+      </div>
+
+      {/* Description Section */}
+      <div className="mt-12">
+        <h3 className="text-lg font-semibold mb-3">Product Description</h3>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          {description || "No description available."}
+        </p>
+      </div>
+    </div>
+  );
+}
