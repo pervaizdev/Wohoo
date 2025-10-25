@@ -45,19 +45,9 @@ const ProductPage = ({ product }) => {
               <FaEye />
             </Link>
 
-            <button
-              aria-label="Add to cart"
-              className="pointer-events-auto grid place-items-center w-12 h-12 rounded-xl bg-white text-gray-800 shadow-md border border-black/10 hover:shadow-lg hover:scale-105 transition"
-            >
-              <FaShoppingCart />
-            </button>
+          
 
-            <button
-              aria-label="Compare"
-              className="pointer-events-auto grid place-items-center w-12 h-12 rounded-xl bg-white text-gray-800 shadow-md border border-black/10 hover:shadow-lg hover:scale-105 transition"
-            >
-              <FaExchangeAlt />
-            </button>
+           
           </div>
         </div>
       </div>

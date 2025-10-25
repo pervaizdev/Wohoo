@@ -77,12 +77,13 @@ const Navbar = () => {
         <div className="flex items-center justify-end gap-5 text-xl text-gray-700">
           {isLoggedIn ? (
             <>
-               <Link href="/cart" aria-label="Cart" className="relative hover:text-sky-500">
-      <FaShoppingCart size={20} />
-      <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] leading-none font-bold px-1.5 py-0.5 rounded-full">
-        0
-      </span>
-    </Link>
+              <Link
+                href="/cart"
+                aria-label="Cart"
+                className="relative hover:text-sky-500"
+              >
+                <FaShoppingCart size={20} />
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="hidden md:inline-flex bg-red-500 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-red-600 transition"

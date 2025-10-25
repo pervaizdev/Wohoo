@@ -13,7 +13,7 @@ import { protect,requireAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", upload.single("image"), requireAdmin, createProduct);
+router.post("/", upload.single("image"), protect, createProduct);
 router.get("/", getAllProducts);
 
 // NEW slug-based endpoints
