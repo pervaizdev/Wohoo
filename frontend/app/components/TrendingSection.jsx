@@ -78,9 +78,7 @@ const TrandingSection = () => {
                     {item.subheading}
                   </p>
                 ) : null}
-                <button className="mt-6 inline-flex items-center justify-center rounded-lg border border-black px-6 py-2 text-black hover:bg-black hover:text-white transition">
-                  {item.btnText || "Shop Now"}
-                </button>
+               
               </div>
             </div>
          </div>

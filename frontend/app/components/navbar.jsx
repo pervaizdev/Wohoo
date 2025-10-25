@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import logo from '../public/images/logo.png';
+import logo from "../public/images/logo.png";
 import {
   FaSearch,
   FaUser,
@@ -34,7 +34,7 @@ const Navbar = () => {
   const handleSignOut = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    alert("Signed out successfully!"); 
+    alert("Signed out successfully!");
   };
 
   return (
@@ -49,13 +49,13 @@ const Navbar = () => {
         {/* Logo */}
         <div className="text-2xl font-bold">
           <Link href="/" className="flex items-center">
-              <Image
-        src={logo}
-        alt="Minimalin Logo"
-        width={70}            // ← adjust size
-        height={70}
-        className="object-cover"
-      />
+            <Image
+              src={logo}
+              alt="Minimalin Logo"
+              width={70} // ← adjust size
+              height={70}
+              className="object-cover"
+            />
           </Link>
         </div>
 
@@ -77,33 +77,18 @@ const Navbar = () => {
         <div className="flex items-center justify-end gap-5 text-xl text-gray-700">
           {isLoggedIn ? (
             <>
+               <Link href="/cart" aria-label="Cart" className="relative hover:text-sky-500">
+      <FaShoppingCart size={20} />
+      <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] leading-none font-bold px-1.5 py-0.5 rounded-full">
+        0
+      </span>
+    </Link>
               <button
-                className="hidden md:inline-flex hover:text-sky-500"
-                aria-label="Search"
+                onClick={handleSignOut}
+                className="hidden md:inline-flex bg-red-500 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-red-600 transition"
               >
-                <FaSearch />
+                Sign Out
               </button>
-              <button
-                className="hidden md:inline-flex hover:text-sky-500"
-                aria-label="Account"
-              >
-                <FaUser />
-              </button>
-              <button className="relative hover:text-sky-500" aria-label="Cart">
-                <FaShoppingCart />
-                <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] leading-none font-bold px-1.5 py-0.5 rounded-full">
-                  0
-                </span>
-              </button>
-
-              {/* ✅ Sign Out button */}
-          <button
-  onClick={handleSignOut}
-  className="hidden md:inline-flex bg-red-500 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-red-600 transition"
->
-  Sign Out
-</button>
-
             </>
           ) : (
             <Link

@@ -242,3 +242,25 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+export const me = async (req, res) => {
+  try {
+    // req.user.id is set by the auth middleware
+    const user = await User.findById(req.user.id)
+      .select("-password") // hide password
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user, // { _id, name, email, phone, role, isVerified, createdAt, updatedAt }
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error: err.message });
+  }
+};
+

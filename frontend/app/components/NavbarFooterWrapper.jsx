@@ -18,7 +18,8 @@ export default function NavbarFooterWrapper({ children }) {
     "/dashboard/trending-product",
     "/dashboard/most-sales",
     "/dashboard/most-sales-add",
-    "/dashboard/product-add"
+    "/dashboard/product-add",
+    "/dashboard/orders"
   ];
 
   // Check if current route matches exact or dynamic patterns

@@ -170,18 +170,7 @@ export default function EditProductPage() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            id="bestSelling"
-            type="checkbox"
-            checked={isBestSelling}
-            onChange={(e) => setIsBestSelling(e.target.checked)}
-            className="h-4 w-4"
-          />
-          <label htmlFor="bestSelling" className="text-sm text-gray-700">
-            Mark as Best-Selling
-          </label>
-        </div>
+ 
 
         <div className="flex gap-3">
           <button

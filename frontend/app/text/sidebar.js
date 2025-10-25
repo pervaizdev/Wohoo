@@ -29,6 +29,11 @@ export const navItems = [
     href: "/dashboard/product",
     icon: FiDollarSign,
   },
+    {
+    name: "Orders",
+    href: "/dashboard/orders",
+    icon: FiDollarSign,
+  },
   
   // {
   //   name: "Content and Marketing",

@@ -23,20 +23,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
           <p className="text-sm text-gray-500">Overview at a glance</p>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href="/products"
-            className="rounded-md bg-black px-3 py-2 text-sm font-medium text-white hover:bg-gray-900"
-          >
-            New Product
-          </Link>
-          <Link
-            href="/orders"
-            className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-900 border hover:bg-gray-50"
-          >
-            View Orders
-          </Link>
-        </div>
+        
       </div>
 
       {/* Stats */}
@@ -56,16 +43,14 @@ export default function DashboardPage() {
       </section>
 
       {/* Content grid */}
-      <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section className="mt-6  gap-6 ">
         {/* Recent activity / orders */}
         <div className="rounded-xl border bg-white p-4 shadow-sm lg:col-span-2">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-base font-semibold text-gray-900">
               Recent Orders
             </h2>
-            <Link href="/orders" className="text-sm text-sky-600 hover:underline">
-              See all
-            </Link>
+           
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -105,34 +90,7 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-
-        {/* Quick actions */}
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-base font-semibold text-gray-900">
-            Quick Actions
-          </h2>
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/products/new"
-              className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
-            >
-              Add Product
-            </Link>
-            <Link
-              href="/customers"
-              className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
-            >
-              View Customers
-            </Link>
-            <Link
-              href="/reports"
-              className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
-            >
-              Download Report
-            </Link>
-          </div>
-        </div>
-      </section>
+    </section>
     </main>
   );
 }

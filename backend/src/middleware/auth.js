@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// 1️⃣ Verify token & attach user
 export const protect = async (req, res, next) => {
   try {
     const hdr = req.headers.authorization || "";
@@ -17,7 +18,7 @@ export const protect = async (req, res, next) => {
         .status(401)
         .json({ success: false, message: "Invalid token user" });
 
-    req.user = user;
+    req.user = user; // attach the user to the request
     next();
   } catch (e) {
     return res
@@ -26,6 +27,7 @@ export const protect = async (req, res, next) => {
   }
 };
 
+// 2️⃣ Generic role guard
 export const requireRole =
   (...roles) =>
   (req, res, next) => {
@@ -36,3 +38,13 @@ export const requireRole =
     }
     next();
   };
+
+// 3️⃣ Specific "admin-only" guard
+export const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ success: false, message: "Access denied: admin only" });
+  }
+  next();
+};

@@ -51,12 +51,12 @@ const Home = () => {
             ))}
           </div>
         )}
-
+{/* 
         <div className="flex justify-center items-center mt-6">
           <button className="bg-[#0a85d1] text-base hover:bg-blue-700 text-white font-bold py-2 px-10 rounded">
             View All
           </button>
-        </div>
+        </div> */}
       </div>
 
 

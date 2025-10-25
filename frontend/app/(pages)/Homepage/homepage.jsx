@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState,useRef } from "react";
 import Herobanner from "@/app/components/herobanner";
 import TrandingSection from "@/app/components/TrendingSection";
 import Marquee from "@/app/components/marquee";
@@ -12,7 +12,11 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const productSectionRef = useRef(null); 
 
+     const handleScrollToProducts = () => {
+    productSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -33,14 +37,14 @@ const Home = () => {
 
   return (
     <div className="container mx-auto">
-      <Herobanner />
+       <Herobanner onScrollToProducts={handleScrollToProducts} />
       <TrandingSection />
 
       <Marquee />
       <h1 className="mt-16 text-3xl font-bold mb-10 px-8">Best Selling</h1>
 
       {/* Loading / Error / Grid */}
-      <div className="px-8">
+      <div className="px-8" ref={productSectionRef}>
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
             {[0, 1, 2, 3].map((i) => (

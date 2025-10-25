@@ -7,14 +7,15 @@ import {
   updateTrendingBySlug,
   deleteTrendingBySlug,
 } from "../controllers/trending.controller.js";
+import { protect,requireAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
 
-router.post("/", upload.single("image"), createTrending);
+router.post("/", upload.single("image"), protect, requireAdmin, createTrending);
 router.get("/", getAllTrending);
 router.get("/:slug", getTrendingBySlug);                      // <-- slug
-router.put("/:slug", upload.single("image"), updateTrendingBySlug); // <-- slug
-router.delete("/:slug", deleteTrendingBySlug);   
+router.put("/:slug", upload.single("image"), protect, requireAdmin, updateTrendingBySlug); // <-- slug
+router.delete("/:slug", protect, requireAdmin, deleteTrendingBySlug);
 
 export default router;

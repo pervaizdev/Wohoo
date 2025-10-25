@@ -28,6 +28,21 @@ export const ENDPOINTS = {
     UPDATE: (id) => `/product/${id}`, // PUT
     DELETE: (id) => `/product/${id}`, // DELETE
   },
+  CART: {
+    ADD_ITEM: "/cart/add",
+    REMOVE_ITEM: "/cart/remove",
+    UPDATE_ITEM: "/cart/item",
+    CLEAR: "/cart/clear",
+    GET: "/cart",
+  },
+  ORDERS: {
+    CREATE: "/orders",
+    MY_ORDERS: "/orders/mine",
+    ORDER_DETAIL: (id) => `/orders/${id}`,
+    LIST: "/orders",
+    UPDATE_STATUS: (id) => `/orders/${id}/status`,
+  },
+  
 
 
 
