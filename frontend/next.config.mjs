@@ -2,12 +2,15 @@
 const nextConfig = {
   images: {
     remotePatterns: [
+      // Local backend
       {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
         pathname: "/uploads/**",
       },
+
+      // Your old API domains
       {
         protocol: "https",
         hostname: "api.yourdomain.com",
@@ -22,6 +25,13 @@ const nextConfig = {
         protocol: "https",
         hostname: "wohoo-api-1e8a38739a3b.herokuapp.com",
         pathname: "/uploads/**",
+      },
+
+      // 🚀 Cloudinary (the new images)
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**", // must allow ALL cloudinary paths
       },
     ],
   },
