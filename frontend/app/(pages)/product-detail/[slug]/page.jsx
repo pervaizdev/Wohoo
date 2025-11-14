@@ -86,20 +86,25 @@ export default function ProductDetailPage() {
       {/* Product Top Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="flex justify-center items-center bg-gray-100 rounded-2xl p-6">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={title || "Product"}
-              width={300}
-              height={300}
-              className="object-contain hover:scale-105 transition-transform duration-500 ease-in-out"
-              priority
-            />
-          ) : (
-            <div className="h-[350px] grid place-items-center text-gray-500">
-              No image
-            </div>
-          )}
+        {imageUrl ? (
+  <Image
+    src={
+      imageUrl.startsWith("http")
+        ? imageUrl
+        : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${imageUrl}`
+    }
+    alt={title || "Product"}
+    width={300}
+    height={300}
+    className="object-contain hover:scale-105 transition-transform duration-500 ease-in-out"
+    priority
+  />
+) : (
+  <div className="h-[350px] grid place-items-center text-gray-500">
+    No image
+  </div>
+)}
+
         </div>
 
         <div>
