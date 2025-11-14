@@ -11,6 +11,13 @@ export default function CartPage() {
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
 
+  // 🆕 confirm dialog state
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    message: "",
+    onConfirm: null,
+  });
+
   const normalize = (raw) => {
     const root = raw?.data ?? raw ?? {};
     const cart = root.cart ?? root?.data?.cart ?? { items: [] };
@@ -35,40 +42,69 @@ export default function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const clear = async () => {
-    if (!data?.cart?.items?.length) return;
-    if (!confirm("Clear all items from cart?")) return;
-    setBusy(true);
-    try {
-      await cartAPI.clearCart();
-      await load();
-      flashInfo("Cart cleared.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const flashInfo = (msg) => {
     setInfo(msg);
     setTimeout(() => setInfo(""), 2200);
   };
 
-  if (!data) return <Skeleton />;
+  // 🆕 open confirm dialog with a message + action
+  const openConfirm = (message, onConfirm) => {
+    setConfirmState({
+      open: true,
+      message,
+      onConfirm,
+    });
+  };
 
-  const { cart, subtotal, totalItems } = data;
+  const handleConfirmOk = async () => {
+    const fn = confirmState.onConfirm;
+    setConfirmState((prev) => ({ ...prev, open: false, onConfirm: null }));
+    if (typeof fn === "function") {
+      await fn();
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmState((prev) => ({ ...prev, open: false, onConfirm: null }));
+  };
+
+  const { cart, subtotal, totalItems } = data || {
+    cart: { items: [] },
+    subtotal: 0,
+    totalItems: 0,
+  };
   const items = cart?.items ?? [];
+
+  // 🆕 clear cart using custom confirm modal
+  const clear = () => {
+    if (!items.length) return;
+
+    openConfirm("Are you sure you want to clear all items from the cart?", async () => {
+      setBusy(true);
+      try {
+        await cartAPI.clearCart();
+        await load();
+        flashInfo("Cart cleared.");
+      } finally {
+        setBusy(false);
+      }
+    });
+  };
+
+  if (!data) return <Skeleton />;
 
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6">
-    <div className="flex items-center justify-between">
-  <h1 className="text-2xl font-bold tracking-tight">Your Cart</h1>
-  <Link
-    href="/orders"
-    className="inline-block bg-black text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-  >
-    My Orders
-  </Link>
-</div>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Your Cart</h1>
+        <Link
+          href="/orders"
+          className="inline-block bg-black text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+        >
+          My Orders
+        </Link>
+      </div>
+
       {/* Alerts */}
       {err && (
         <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -102,16 +138,21 @@ export default function CartPage() {
                       setBusy(false);
                     }
                   }}
-                  onRemove={async () => {
-                    if (!confirm("Remove this item?")) return;
-                    setBusy(true);
-                    try {
-                      await cartAPI.removeItem(it._id || it.product);
-                      await load();
-                      flashInfo("Item removed.");
-                    } finally {
-                      setBusy(false);
-                    }
+                  // 🆕 use custom confirm for remove
+                  onRemove={() => {
+                    openConfirm(
+                      "Are you sure you want to remove this item from the cart?",
+                      async () => {
+                        setBusy(true);
+                        try {
+                          await cartAPI.removeItem(it._id || it.product);
+                          await load();
+                          flashInfo("Item removed.");
+                        } finally {
+                          setBusy(false);
+                        }
+                      }
+                    );
                   }}
                   disabled={busy}
                 />
@@ -132,7 +173,6 @@ export default function CartPage() {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">{formatPKR(subtotal)}</span>
                 </div>
-                {/* Future: shipping/taxes */}
               </div>
               <Link
                 href="/checkout"
@@ -158,6 +198,14 @@ export default function CartPage() {
           </aside>
         </div>
       )}
+
+      {/* 🆕 Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmState.open}
+        message={confirmState.message}
+        onCancel={handleConfirmCancel}
+        onConfirm={handleConfirmOk}
+      />
     </div>
   );
 }
@@ -184,7 +232,6 @@ function Row({ it, onChanged, onRemove, disabled }) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center p-3 sm:p-4">
       <div className="shrink-0">
-        {/* image fallback */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={it.imageUrl}
@@ -192,7 +239,6 @@ function Row({ it, onChanged, onRemove, disabled }) {
           className="h-24 w-24 sm:h-28 sm:w-28 rounded-xl object-cover ring-1 ring-gray-200"
           onError={(e) => (e.currentTarget.style.visibility = "hidden")}
         />
-        
       </div>
 
       <div className="flex-1 w-full">
@@ -238,7 +284,7 @@ function Row({ it, onChanged, onRemove, disabled }) {
             </button>
           </div>
 
-          {/* Size selector (keeps your simple string if no options present) */}
+          {/* Size selector */}
           <div className="flex items-center gap-2">
             <span className="text-gray-600">Size</span>
             {Array.isArray(it.sizes) && it.sizes.length > 0 ? (
@@ -340,4 +386,32 @@ function formatPKR(value) {
   } catch {
     return `PKR ${Number(value) || 0}`;
   }
+}
+
+// 🆕 Simple reusable confirm dialog
+function ConfirmDialog({ open, message, onCancel, onConfirm }) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+        <h3 className="text-lg font-semibold mb-2">Are you sure?</h3>
+        <p className="text-sm text-gray-600 mb-4">{message}</p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm rounded-xl border border-gray-300 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm rounded-xl bg-red-500 text-white hover:bg-red-600"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
