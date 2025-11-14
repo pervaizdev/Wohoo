@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost", "wohoo-api-1e8a38739a3b.herokuapp.com"],
     remotePatterns: [
       {
         protocol: "http",
@@ -11,7 +10,17 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.yourdomain.com", // replace with your prod host later
+        hostname: "api.yourdomain.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "wohoo-3495d51dbaaf.herokuapp.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "wohoo-api-1e8a38739a3b.herokuapp.com",
         pathname: "/uploads/**",
       },
     ],

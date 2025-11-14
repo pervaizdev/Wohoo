@@ -65,8 +65,13 @@ const TrandingSection = () => {
               bg-no-repeat bg-top md:bg-right bg-contain
             "
             style={{
-              backgroundImage: `url(${item.imageUrl})`,
-            }}
+  backgroundImage: `url(${
+    item?.imageUrl?.startsWith("http")
+      ? item.imageUrl
+      : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${item?.imageUrl}`
+  })`,
+}}
+
           >
             <div className="relative z-10 flex h-full items-center">
               <div className="px-6 md:px-12 py-8">

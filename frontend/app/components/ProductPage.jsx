@@ -17,13 +17,18 @@ const ProductPage = ({ product }) => {
         >
           {imageUrl ? (
             <Image
-              src={imageUrl}
-              alt={title || "Product image"}
-              fill
-              className="object-contain p-4"
-              priority
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
+  src={
+    imageUrl?.startsWith("http")
+      ? imageUrl
+      : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${imageUrl}`
+  }
+  alt={title || "Product image"}
+  fill
+  className="object-contain p-4"
+  priority
+  sizes="(max-width: 768px) 50vw, 25vw"
+/>
+
           ) : (
             <div className="w-full h-full grid place-items-center text-gray-500">
               No image

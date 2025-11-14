@@ -3,14 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { cartAPI } from "../../apis/cart";
-
-/**
- * CartPage — polished UI/UX
- * - 2‑column layout on desktop: items (left), sticky order summary (right)
- * - Loading skeletons, empty state, inline alerts
- * - Quantity stepper, optional size select, per-row saving state
- * - Defensive response normalization so it works with {data:{...}} or flat
- */
+import Image from "next/image";
 
 export default function CartPage() {
   const [data, setData] = useState(null);
@@ -199,6 +192,7 @@ function Row({ it, onChanged, onRemove, disabled }) {
           className="h-24 w-24 sm:h-28 sm:w-28 rounded-xl object-cover ring-1 ring-gray-200"
           onError={(e) => (e.currentTarget.style.visibility = "hidden")}
         />
+        
       </div>
 
       <div className="flex-1 w-full">

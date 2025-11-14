@@ -100,7 +100,11 @@ export default function EditProductPage() {
           {previewUrl && (
             <div className="relative w-full max-w-md h-56 mb-3 bg-gray-100 rounded overflow-hidden">
               <img
-                src={previewUrl}
+                src={
+                  previewUrl.startsWith("http")
+                    ? previewUrl
+                    : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${previewUrl}`
+                }
                 alt="preview"
                 className="w-full h-full object-contain"
               />

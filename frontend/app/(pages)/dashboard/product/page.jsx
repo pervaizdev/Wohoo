@@ -21,27 +21,32 @@ const AdminMostSalesProducts = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const load = useCallback(async (nextPage = page) => {
-    try {
-      setLoading(true);
-      setError("");
+  const load = useCallback(
+    async (nextPage = page) => {
+      try {
+        setLoading(true);
+        setError("");
 
-      // Expecting backend: GET /api/products?page=X&limit=9
-      const payload = await productAPI.list({ page: nextPage, limit: LIMIT });
-      // payload shape: { success, data: [...], pagination: {...} }
-      const data = Array.isArray(payload?.data) ? payload.data : payload?.data?.data || [];
-      const meta = payload?.pagination || payload?.data?.pagination || {};
+        // Expecting backend: GET /api/products?page=X&limit=9
+        const payload = await productAPI.list({ page: nextPage, limit: LIMIT });
+        // payload shape: { success, data: [...], pagination: {...} }
+        const data = Array.isArray(payload?.data)
+          ? payload.data
+          : payload?.data?.data || [];
+        const meta = payload?.pagination || payload?.data?.pagination || {};
 
-      setItems(data);
-      setPage(meta.page ?? nextPage);
-      setTotalPages(meta.totalPages ?? 1);
-      setTotal(meta.total ?? data.length);
-    } catch (err) {
-      setError(err?.message || "Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
+        setItems(data);
+        setPage(meta.page ?? nextPage);
+        setTotalPages(meta.totalPages ?? 1);
+        setTotal(meta.total ?? data.length);
+      } catch (err) {
+        setError(err?.message || "Failed to fetch products");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page]
+  );
 
   useEffect(() => {
     load(1);
@@ -84,7 +89,8 @@ const AdminMostSalesProducts = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Products</h1>
           <p className="text-sm text-gray-500">
-            Showing page {page} of {totalPages} — total {total} item{total === 1 ? "" : "s"}
+            Showing page {page} of {totalPages} — total {total} item
+            {total === 1 ? "" : "s"}
           </p>
         </div>
         <Link href="/dashboard/product-add">
@@ -131,10 +137,15 @@ const AdminMostSalesProducts = () => {
               >
                 <div className="h-60 w-full overflow-hidden bg-gray-100 relative">
                   <img
-                    src={item?.imageUrl}
+                    src={
+                      item?.imageUrl?.startsWith("http")
+                        ? item.imageUrl
+                        : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${item?.imageUrl}`
+                    }
                     alt={item?.title}
                     className="object-contain w-full h-full"
                   />
+
                   <div className="absolute top-2 right-2 flex gap-2">
                     <Link href={`/dashboard/product-edit/${item.slug}`}>
                       <button
@@ -155,7 +166,9 @@ const AdminMostSalesProducts = () => {
                 </div>
 
                 <div className="p-4">
-                  <h2 className="text-lg font-semibold text-gray-800">{item?.title}</h2>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {item?.title}
+                  </h2>
 
                   <div className="flex items-center gap-2 mt-1 mb-3">
                     <span className="text-sm text-gray-700 font-medium">
@@ -172,7 +185,10 @@ const AdminMostSalesProducts = () => {
                     <span>Slug: {item?.slug || "—"}</span>
                     <span>
                       {new Date(item?.createdAt).toLocaleDateString()}{" "}
-                      {new Date(item?.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(item?.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                 </div>
@@ -207,11 +223,15 @@ const AdminMostSalesProducts = () => {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-md text-center">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Confirm Delete</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Confirm Delete
+            </h2>
             <p className="text-gray-600 mb-6">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-red-600">“{selectedItem?.title}”</span>?
-              This action cannot be undone.
+              <span className="font-semibold text-red-600">
+                “{selectedItem?.title}”
+              </span>
+              ? This action cannot be undone.
             </p>
             <div className="flex justify-center gap-3">
               <button

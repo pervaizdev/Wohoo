@@ -105,11 +105,16 @@ const AdminTrendingProducts = () => {
                   className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all bg-white"
                 >
                   <div className="h-60 w-full overflow-hidden bg-gray-100 relative">
-                    <img
-                      src={item?.imageUrl}
-                      alt={item?.heading}
-                      className="object-contain w-full h-full"
-                    />
+                   <img
+  src={
+    item?.imageUrl?.startsWith("http")
+      ? item.imageUrl
+      : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${item?.imageUrl}`
+  }
+  alt={item?.heading}
+  className="object-contain w-full h-full"
+/>
+
 
                     <div className="absolute top-2 right-2 flex gap-2">
                       {/* Edit */}
