@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "../public/images/logo.png";
+import { cartAPI } from "../apis/cart";
 import {
   FaSearch,
   FaUser,
@@ -15,6 +16,9 @@ import {
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [cartData, setCartData] = useState(null);
+  const [err, setErr] = useState("");
+  const [cartCount, setCartCount] = useState(0);
 
   const links = [
     { name: "Home", href: "/" },
@@ -22,7 +26,7 @@ const Navbar = () => {
     { name: "Contact", href: "/contact" },
   ];
 
-  // ✅ Check token in localStorage on mount
+  // ✅ Check token
   useEffect(() => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
@@ -30,12 +34,43 @@ const Navbar = () => {
     }
   }, []);
 
-  // ✅ Sign out function
+  // 🚀 HIT CART API + UPDATE COUNT
+  const loadCart = async () => {
+    try {
+      setErr("");
+      const res = await cartAPI.getCart();
+
+      console.log("🛒 CART API RESPONSE:", res);
+
+      setCartData(res);
+
+      const count = res?.totalItems || 0;
+      setCartCount(count);
+    } catch (e) {
+      console.error("❌ CART API ERROR:", e);
+      setErr("Could not load cart. Please try again.");
+      setCartData(null);
+      setCartCount(0);
+    }
+  };
+
+  // ✅ Load cart after login
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadCart();
+    }
+  }, [isLoggedIn]);
+
+  // ✅ Sign out
   const handleSignOut = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
+    setCartCount(0);
     alert("Signed out successfully!");
   };
+
+  // ✅ Display logic: 0 = hide, 1–9 = number, >9 = "9+"
+  const displayCount = cartCount > 9 ? "9+" : cartCount;
 
   return (
     <header className="bg-white px-10">
@@ -52,7 +87,7 @@ const Navbar = () => {
             <Image
               src={logo}
               alt="Minimalin Logo"
-              width={70} // ← adjust size
+              width={70}
               height={70}
               className="object-cover"
             />
@@ -82,8 +117,23 @@ const Navbar = () => {
                 aria-label="Cart"
                 className="relative hover:text-sky-500"
               >
-                <FaShoppingCart size={20} />
+                <FaShoppingCart size={25} />
+
+                {/* ⭐ Cart count badge */}
+                {cartCount > 0 && (
+                  <span
+                    className="
+                      absolute -top-2 -right-2
+                      bg-red-500 text-white text-xs
+                      w-5 h-5 flex items-center justify-center
+                      rounded-full
+                    "
+                  >
+                    {displayCount}
+                  </span>
+                )}
               </Link>
+
               <button
                 onClick={handleSignOut}
                 className="hidden md:inline-flex bg-red-500 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-red-600 transition"
@@ -140,6 +190,27 @@ const Navbar = () => {
                 <button className="hover:text-sky-500" aria-label="Account">
                   <FaUser />
                 </button>
+                {/* Optional: show cart count in mobile too */}
+                <Link
+                  href="/cart"
+                  aria-label="Cart"
+                  className="relative hover:text-sky-500"
+                  onClick={() => setOpen(false)}
+                >
+                  <FaShoppingCart />
+                  {cartCount > 0 && (
+                    <span
+                      className="
+                        absolute -top-2 -right-2
+                        bg-red-500 text-white text-xs
+                        w-5 h-5 flex items-center justify-center
+                        rounded-full
+                      "
+                    >
+                      {displayCount}
+                    </span>
+                  )}
+                </Link>
               </div>
               {/* ✅ Sign Out in mobile menu */}
               <button
