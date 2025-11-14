@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { mostSalesAPI} from "../../../../apis/mostsale";
+import { mostSalesAPI } from "../../../../apis/mostsale";
 import toast from "react-hot-toast";
 
 export default function EditTrendingPage() {
@@ -37,14 +37,14 @@ export default function EditTrendingPage() {
         setLoading(false);
       }
     };
-    load();
+    if (slug) load();
   }, [slug]);
 
   const onImageChange = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setImageFile(f);
-    setPreviewUrl(URL.createObjectURL(f));
+    setPreviewUrl(URL.createObjectURL(f)); // blob: URL
   };
 
   const onSubmit = async (e) => {
@@ -61,7 +61,7 @@ export default function EditTrendingPage() {
       await mostSalesAPI.update(slug, fd);
 
       toast.dismiss();
-      toast.success("Trending item updated successfully!");
+      toast.success("Most sales item updated successfully!");
       router.push("/dashboard/most-sales");
     } catch (err) {
       toast.dismiss();
@@ -83,9 +83,12 @@ export default function EditTrendingPage() {
     return <div className="p-6 text-red-600">{error}</div>;
   }
 
+  // handle Cloudinary / blob / data URLs vs local filenames
+  const isAbsolutePreview = /^(https?:|blob:|data:)/.test(previewUrl);
+
   return (
     <div className="p-6 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">Edit Trending Item</h1>
+      <h1 className="text-2xl font-bold mb-6">Edit Most Sales Item</h1>
 
       <form onSubmit={onSubmit} className="space-y-6">
         {/* Image */}
@@ -93,11 +96,11 @@ export default function EditTrendingPage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Image
           </label>
-            {previewUrl && (
+          {previewUrl && (
             <div className="relative w-full max-w-md h-56 mb-3 bg-gray-100 rounded overflow-hidden">
               <img
                 src={
-                  previewUrl.startsWith("http")
+                  isAbsolutePreview
                     ? previewUrl
                     : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${previewUrl}`
                 }

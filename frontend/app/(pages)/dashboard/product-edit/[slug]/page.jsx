@@ -44,14 +44,15 @@ export default function EditProductPage() {
         setLoading(false);
       }
     };
-    load();
+
+    if (slug) load();
   }, [slug]);
 
   const onImageChange = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setImageFile(f);
-    setPreviewUrl(URL.createObjectURL(f));
+    setPreviewUrl(URL.createObjectURL(f)); // Blob preview
   };
 
   const onSubmit = async (e) => {
@@ -70,7 +71,7 @@ export default function EditProductPage() {
       await productAPI.update(slug, fd);
       toast.dismiss();
       toast.success("Product updated successfully!");
-      router.push("/dashboard/most-sales");
+      router.push("/dashboard/product");
     } catch (err) {
       toast.dismiss();
       toast.error(err?.message || "Failed to update product");
@@ -88,6 +89,9 @@ export default function EditProductPage() {
 
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
+  // detect Cloudinary URL / blob / data URL
+  const isAbsolutePreview = /^(https?:|blob:|data:)/.test(previewUrl);
+
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
@@ -97,11 +101,12 @@ export default function EditProductPage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Image
           </label>
+
           {previewUrl && (
             <div className="relative w-full max-w-md h-56 mb-3 bg-gray-100 rounded overflow-hidden">
               <img
                 src={
-                  previewUrl.startsWith("http")
+                  isAbsolutePreview
                     ? previewUrl
                     : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${previewUrl}`
                 }
@@ -110,12 +115,14 @@ export default function EditProductPage() {
               />
             </div>
           )}
+
           <input
             type="file"
             accept="image/*"
             onChange={onImageChange}
             className="block"
           />
+
           <p className="text-xs text-gray-500 mt-1">
             Leave empty to keep current image.
           </p>
@@ -174,8 +181,6 @@ export default function EditProductPage() {
           />
         </div>
 
- 
-
         <div className="flex gap-3">
           <button
             type="submit"
@@ -184,9 +189,10 @@ export default function EditProductPage() {
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>
+
           <button
             type="button"
-            onClick={() => router.push("/dashboard/most-sales")}
+            onClick={() => router.push("/dashboard/product")}
             className="border px-4 py-2 rounded"
           >
             Cancel

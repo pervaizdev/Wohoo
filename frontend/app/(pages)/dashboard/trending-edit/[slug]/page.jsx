@@ -25,6 +25,7 @@ export default function EditTrendingPage() {
         setLoading(true);
         const res = await trendingAPI.detail(slug);
         const item = res?.data;
+
         setHeading(item?.heading || "");
         setSubheading(item?.subheading || "");
         setBtnText(item?.btnText || "");
@@ -37,14 +38,15 @@ export default function EditTrendingPage() {
         setLoading(false);
       }
     };
-    load();
+
+    if (slug) load();
   }, [slug]);
 
   const onImageChange = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setImageFile(f);
-    setPreviewUrl(URL.createObjectURL(f));
+    setPreviewUrl(URL.createObjectURL(f)); // blob URL for preview
   };
 
   const onSubmit = async (e) => {
@@ -83,6 +85,9 @@ export default function EditTrendingPage() {
     return <div className="p-6 text-red-600">{error}</div>;
   }
 
+  // handle Cloudinary / blob / data URLs vs local filenames
+  const isAbsolutePreview = /^(https?:|blob:|data:)/.test(previewUrl);
+
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold mb-6">Edit Trending Item</h1>
@@ -97,7 +102,7 @@ export default function EditTrendingPage() {
             <div className="relative w-full max-w-md h-56 mb-3 bg-gray-100 rounded overflow-hidden">
               <img
                 src={
-                  previewUrl.startsWith("http")
+                  isAbsolutePreview
                     ? previewUrl
                     : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${previewUrl}`
                 }
